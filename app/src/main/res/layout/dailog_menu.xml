@@ -1,0 +1,70 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.recipie.rahulrecipie.activity.MainActivity">
+
+    <data class="DailogMenuBinding">
+
+        <import type="android.view.View" />
+
+        <import
+            alias="ViewModel"
+            type="com.recipie.rahulrecipie.viewmodel.DailogMenuViewModel" />
+
+        <variable
+            name="viewModel"
+            type="ViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp">
+
+            <TextView
+                style="@style/AppTheme.Widget.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:onClick="@{viewModel.onChooseCamera}"
+                android:padding="8dp"
+                android:text="Take Photo"
+                android:textColor="@color/text_color"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f2f2f2" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp">
+
+            <TextView
+                style="@style/AppTheme.Widget.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:onClick="@{viewModel.onChooseGallery}"
+                android:padding="8dp"
+                android:text="Choose from Gallery"
+                android:textColor="@color/text_color"
+                android:textSize="16sp"
+                android:textStyle="normal" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</layout>

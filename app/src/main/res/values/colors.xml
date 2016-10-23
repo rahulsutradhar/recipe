@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_brand">#85BB38</color>
+    <color name="background_main">#f4f4f4</color>
+    <color name="background_dotted">#d2d2d2</color>
+    <color name="warning_alert">#ee7854</color>
+    <color name="primary_text">#FFFFFF</color>
+    <color name="text_color">#333333</color>
+    <color name="hint_text_color">#9b9b9b</color>
+    <color name="white">#FFFFFF</color>
+    <color name="background_grey">#e4e4e3</color>
+
+</resources>

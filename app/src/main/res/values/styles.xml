@@ -1,0 +1,29 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="colorPrimary">@color/primary_brand</item>
+        <item name="colorPrimaryDark">@color/primary_brand</item>
+        <item name="android:colorBackground">@color/background_main</item>
+        <item name="android:textColorPrimary">@color/primary_text</item>
+        <item name="android:editTextColor">@color/text_color</item>
+    </style>
+
+
+    <style name="AppTheme.Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="fontPath">fonts/helvetica-neue.ttf</item>
+    </style>
+
+    <style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
+        <item name="fontPath">fonts/helvetica-neue.ttf</item>
+    </style>
+
+    <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textColorPrimary">@color/text_color</item>
+    </style>
+
+</resources>

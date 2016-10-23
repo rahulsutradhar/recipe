@@ -1,0 +1,96 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.recipie.rahulrecipie.activity.MainActivity">
+
+    <data class="RecipeTypeDailogBinding">
+
+        <import
+            alias="ViewModel"
+            type="com.recipie.rahulrecipie.viewmodel.DailogRecipeTypeViewModel" />
+
+        <variable
+            name="viewModel"
+            type="ViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/AppTheme.Widget.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:onClick="@{viewModel.onChooseBreakFast}"
+            android:padding="8dp"
+            android:text="Breakfast"
+            android:textColor="@color/text_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f2f2f2" />
+
+        <TextView
+            style="@style/AppTheme.Widget.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:onClick="@{viewModel.onChooseLunch}"
+            android:padding="8dp"
+            android:text="Lunch"
+            android:textColor="@color/text_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f2f2f2" />
+
+        <TextView
+            style="@style/AppTheme.Widget.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:onClick="@{viewModel.onChooseDesert}"
+            android:padding="8dp"
+            android:text="Desert"
+            android:textColor="@color/text_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f2f2f2" />
+
+        <TextView
+            style="@style/AppTheme.Widget.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:onClick="@{viewModel.onChooseSalad}"
+            android:padding="8dp"
+            android:text="Salad"
+            android:textColor="@color/text_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+
+    </LinearLayout>
+</layout>
+

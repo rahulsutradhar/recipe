@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data class="CookingTimeDailogBinding">
+
+        <import type="android.view.View" />
+
+        <import
+            alias="ViewModel"
+            type="com.recipie.rahulrecipie.viewmodel.DailogCookingTimeViewModel" />
+
+        <variable
+            name="viewModel"
+            type="ViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/background_main">
+
+            <TextView
+                style="@style/AppTheme.Widget.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:onClick="@{viewModel.onClickCancel}"
+                android:text="Cancel"
+                android:textColor="@color/primary_brand"
+                android:textSize="14sp" />
+
+            <TextView
+                style="@style/AppTheme.Widget.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:onClick="@{viewModel.onClickDone}"
+                android:text="Done"
+                android:textColor="@color/primary_brand"
+                android:textSize="14sp" />
+
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <NumberPicker
+                    android:id="@+id/numberPickerHour"
+                    style="@style/AppTheme.Picker"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:scaleX=".7"
+                    android:scaleY=".7" />
+
+                <TextView
+                    style="@style/AppTheme.Widget.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/numberPickerHour"
+                    android:text="hours"
+                    android:textColor="@color/text_color"
+                    android:textSize="14sp" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <NumberPicker
+                    android:id="@+id/numberPickerMinute"
+                    style="@style/AppTheme.Picker"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:scaleX=".7"
+                    android:scaleY=".7" />
+
+                <TextView
+                    style="@style/AppTheme.Widget.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/numberPickerMinute"
+                    android:text="min"
+                    android:textColor="@color/text_color"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</layout>
