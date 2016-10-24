@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v8.renderscript.Allocation;
@@ -31,13 +32,20 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import com.recipie.rahulrecipie.R;
+import com.recipie.rahulrecipie.apiclient.api.GetRecipeAPI;
+import com.recipie.rahulrecipie.apiclient.response.RecipeResponse;
 import com.recipie.rahulrecipie.databinding.CookingTimeDailogBinding;
 import com.recipie.rahulrecipie.databinding.DailogMenuBinding;
 import com.recipie.rahulrecipie.databinding.RecipeTypeDailogBinding;
 import com.recipie.rahulrecipie.fragment.MainFragment;
 import com.recipie.rahulrecipie.helper.SimpleTextWatcher;
+
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 import static com.recipie.rahulrecipie.global.Constant.*;
 
@@ -60,6 +68,21 @@ public class MainFragmentViewModel extends BaseViewModel {
     private MainFragment fragment;
 
     /**
+     * Person served
+     */
+    private String personServed;
+
+    /**
+     * Cooking time
+     */
+    private String cookingTime;
+
+    /**
+     * Selected image visibility
+     */
+    private boolean selectedImageVisibility;
+
+    /**
      * ArrayAdapter
      */
     private ArrayAdapter<String> adapterTypeSelection;
@@ -72,6 +95,11 @@ public class MainFragmentViewModel extends BaseViewModel {
     private AlertDialog alertDialogMenu;
     private AlertDialog alertDialogRecipeType;
     private AlertDialog alertDialogCookingTime;
+
+    /**
+     * BackgroundImageview
+     */
+    private ImageView imageViewSelectedImage;
 
     /**
      * Image Path
@@ -95,11 +123,15 @@ public class MainFragmentViewModel extends BaseViewModel {
     public MainFragmentViewModel(MainFragment fragment) {
         this.fragment = fragment;
         this.recipeName = "";
-        this.recipeType = "";
+        this.recipeType = "Choose your recipe type";
+        this.personServed = "Serves";
+        this.cookingTime = "Cooking Time";
+        this.selectedImageVisibility = false;
     }
 
     public void bindBackgroundImage() {
         ImageView imageView = (ImageView) fragment.getActivity().findViewById(R.id.background);
+        imageViewSelectedImage = (ImageView) fragment.getActivity().findViewById(R.id.background_selected);
         Bitmap bitmap = BitmapFactory.decodeResource(fragment.getActivity().getResources(),
                 R.drawable.background_imge);
         Bitmap blurBitmap = blur(bitmap);
@@ -145,7 +177,9 @@ public class MainFragmentViewModel extends BaseViewModel {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(fragment.getActivity(), "Cancel", Toast.LENGTH_SHORT).show();
+                selectedImageVisibility = false;
+                notifyChange();
+                //Toast.makeText(fragment.getActivity(), "Cancel", Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -237,7 +271,7 @@ public class MainFragmentViewModel extends BaseViewModel {
         int OFFSET_X = 0;
         int OFFSET_Y = 400;
 
-        String[] types = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+        final String[] types = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 
         adapterTypeSelection = new ArrayAdapter<String>(fragment.getActivity(),
                 R.layout.item_popup_window
@@ -250,7 +284,8 @@ public class MainFragmentViewModel extends BaseViewModel {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
+                personServed = types[position] + " Person";
+                notifyChange();
                 pwindow.dismiss();
             }
         });
@@ -345,6 +380,11 @@ public class MainFragmentViewModel extends BaseViewModel {
         }
     }
 
+    public void setCookingTime(String cookingTimeText) {
+        cookingTime = cookingTimeText;
+        notifyChange();
+    }
+
     //recipe type
     public void selectedRecipeType(int type) {
         switch (type) {
@@ -391,7 +431,11 @@ public class MainFragmentViewModel extends BaseViewModel {
     //get selected image path
     public void getSlectedImagePath(Uri uri) {
         selectedImagePath = getPath(uri);
-        Toast.makeText(fragment.getActivity(), selectedImagePath + " path", Toast.LENGTH_SHORT).show();
+        if (selectedImagePath != null) {
+            displayImage(selectedImagePath);
+        } else {
+            Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //get the actual path of the image
@@ -421,6 +465,72 @@ public class MainFragmentViewModel extends BaseViewModel {
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         String path = MediaStore.Images.Media.insertImage(fragment.getActivity().getContentResolver(), inImage, "Title", null);
         return Uri.parse(path);
+    }
+
+    //display selected image in imageview
+    public void displayImage(String imagePath) {
+        try {
+            if (imagePath != null) {
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    selectedImageVisibility = true;
+                    Bitmap myBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+                    imageViewSelectedImage.setImageBitmap(myBitmap);
+                    notifyChange();
+                } else {
+                    selectedImageVisibility = false;
+                    Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                    notifyChange();
+                }
+            }
+        } catch (Exception e) {
+            Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    /**
+     * Request server to fetch recipe data
+     */
+    public void fetchRecipeTypes() {
+        Callback<RecipeResponse> callback = new Callback<RecipeResponse>() {
+            @Override
+            public void onResponse(Response<RecipeResponse> response,
+                                   Retrofit retrofit) {
+
+                try {
+                    if (response.isSuccess()) {
+
+                        RecipeResponse recipeResponse = response.body();
+                        Toast.makeText(fragment.getActivity(), recipeResponse.toString() + " ", Toast.LENGTH_SHORT).show();
+
+
+                    } else {
+                        if (response != null && !response.isSuccess() && response.errorBody() != null) {
+                            //DO ERROR HANDLING HERE
+                            Toast.makeText(fragment.getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(fragment.getActivity(), "Exception", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(fragment.getActivity(), "Failure " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        //parameters
+        Bundle params = new Bundle();
+        params.putCharSequence("recipe_id", "1");
+
+        GetRecipeAPI getRecipeAPI = GetRecipeAPI.build(params);
+        getRecipeAPI.execute(callback);
     }
 
     /******************************
@@ -456,5 +566,33 @@ public class MainFragmentViewModel extends BaseViewModel {
 
     public void setRecipeType(String recipeType) {
         this.recipeType = recipeType;
+    }
+
+    public boolean isSelectedImageVisibility() {
+        return selectedImageVisibility;
+    }
+
+    public void setSelectedImageVisibility(boolean selectedImageVisibility) {
+        this.selectedImageVisibility = selectedImageVisibility;
+    }
+
+    public String getSelectedImagePath() {
+        return selectedImagePath;
+    }
+
+    public void setSelectedImagePath(String selectedImagePath) {
+        this.selectedImagePath = selectedImagePath;
+    }
+
+    public String getPersonServed() {
+        return personServed;
+    }
+
+    public void setPersonServed(String personServed) {
+        this.personServed = personServed;
+    }
+
+    public String getCookingTime() {
+        return cookingTime;
     }
 }

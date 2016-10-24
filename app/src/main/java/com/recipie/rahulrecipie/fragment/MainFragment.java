@@ -63,6 +63,7 @@ public class MainFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         constructToolbar();
         mainFragmentViewModel.bindBackgroundImage();
+        mainFragmentViewModel.fetchRecipeTypes();
     }
 
     @Override

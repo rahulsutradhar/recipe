@@ -31,12 +31,19 @@ public class DailogCookingTimeViewModel extends BaseViewModel {
     private View view;
 
     /**
+     * Time
+     */
+    private String hoursChoosed;
+    private String minuteChoosed;
+
+    /**
      * Constructor
      */
     public DailogCookingTimeViewModel(MainFragment fragment, View view) {
         this.fragment = fragment;
         this.view = view;
-
+        this.hoursChoosed = "0 hours";
+        this.minuteChoosed = "0 min";
 
         bindNumberPicker();
     }
@@ -62,6 +69,30 @@ public class DailogCookingTimeViewModel extends BaseViewModel {
 
         setDividerColor(numberPickerHour, R.color.background_main);
         setDividerColor(numberPickerMin, R.color.background_main);
+
+
+        numberPickerHour.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+                if (oldValue != newValue) {
+                    hoursChoosed = String.valueOf(newValue) + "hours";
+                } else {
+                    hoursChoosed = String.valueOf(oldValue) + "hours";
+                }
+            }
+        });
+
+        numberPickerMin.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+                if (oldValue != newValue) {
+                    minuteChoosed = String.valueOf(newValue) + " min";
+                } else {
+                    minuteChoosed = String.valueOf(oldValue) + " min";
+                }
+            }
+        });
+
     }
 
     private void setDividerColor(NumberPicker picker, int color) {
@@ -90,7 +121,9 @@ public class DailogCookingTimeViewModel extends BaseViewModel {
             @Override
             public void onClick(View view) {
                 //open dailog to choose types
+                sendCookingTime();
                 sendResponse(3);
+
             }
         };
     }
@@ -108,6 +141,20 @@ public class DailogCookingTimeViewModel extends BaseViewModel {
     public void sendResponse(int type) {
         if (fragment != null) {
             fragment.getMainFragmentViewModel().closeDailog(type);
+        }
+    }
+
+    public void sendCookingTime() {
+        if (fragment != null) {
+            if (hoursChoosed != null && minuteChoosed != null) {
+                fragment.getMainFragmentViewModel().setCookingTime(hoursChoosed + " " + minuteChoosed);
+            } else if (hoursChoosed == null) {
+                fragment.getMainFragmentViewModel().setCookingTime(minuteChoosed);
+            } else if (minuteChoosed == null) {
+                fragment.getMainFragmentViewModel().setCookingTime(hoursChoosed);
+            } else {
+                fragment.getMainFragmentViewModel().setCookingTime("0 hours 0 min");
+            }
         }
     }
 }

@@ -16,4 +16,8 @@ public class Constant {
      */
     public static final int CLICK_PICTURE = 2;
 
+    /**
+     * Base urls
+     */
+    public static final String HOST = "http://www.chefling.me";
 }
