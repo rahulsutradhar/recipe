@@ -322,24 +322,21 @@
                         android:layout_marginBottom="20dp"
                         android:layout_marginLeft="12dp"
                         android:layout_marginRight="12dp"
-                        android:layout_marginTop="30dp">
+                        android:layout_marginTop="30dp"
+                        android:background="@drawable/dotted_outline">
 
                         <android.support.v7.widget.AppCompatEditText
                             android:id="@+id/edittext_recipe_story"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1.0"
                             android:autoLink="all"
-                            android:background="@drawable/dotted_outline"
-                            android:cursorVisible="true"
+                            android:background="@android:color/transparent"
                             android:ems="100"
                             android:gravity="left|top"
                             android:hint="Notes, tell us the story behind it."
                             android:inputType="textMultiLine|textCapSentences"
-                            android:isScrollContainer="true"
-                            android:lines="1"
                             android:maxLines="100"
-                            android:padding="10dp"
+                            android:padding="4dp"
                             android:scrollbars="none"
                             android:textColor="@color/text_color"
                             android:textColorHint="@color/hint_text_color"

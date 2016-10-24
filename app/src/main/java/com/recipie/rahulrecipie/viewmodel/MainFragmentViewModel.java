@@ -1,12 +1,11 @@
 package com.recipie.rahulrecipie.viewmodel;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-
-import java.io.FileReader;
-import java.lang.reflect.Type;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +34,8 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
+import android.support.v4.app.ActivityCompat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import com.recipie.rahulrecipie.apiclient.api.GetRecipeAPI;
 import com.recipie.rahulrecipie.apiclient.response.RecipeResponse;
 import com.recipie.rahulrecipie.databinding.CookingTimeDailogBinding;
 import com.recipie.rahulrecipie.databinding.DailogMenuBinding;
+import com.recipie.rahulrecipie.databinding.PersonServedDailogBinding;
 import com.recipie.rahulrecipie.databinding.RecipeTypeDailogBinding;
 import com.recipie.rahulrecipie.fragment.MainFragment;
 import com.recipie.rahulrecipie.helper.SimpleTextWatcher;
@@ -108,6 +110,7 @@ public class MainFragmentViewModel extends BaseViewModel {
     private AlertDialog alertDialogMenu;
     private AlertDialog alertDialogRecipeType;
     private AlertDialog alertDialogCookingTime;
+    private AlertDialog alertDialogPersonServed;
 
     /**
      * BackgroundImageview
@@ -196,8 +199,12 @@ public class MainFragmentViewModel extends BaseViewModel {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectedImageVisibility = false;
-                notifyChange();
+                if (selectedImageVisibility == true) {
+                    selectedImageVisibility = false;
+                    notifyChange();
+                } else {
+                    Toast.makeText(fragment.getActivity(), "No image selected", Toast.LENGTH_SHORT).show();
+                }
             }
         };
     }
@@ -235,6 +242,43 @@ public class MainFragmentViewModel extends BaseViewModel {
         };
     }
 
+    public boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (fragment.getActivity().checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("TAG", "Permission is granted");
+                return true;
+            } else {
+
+                Log.v("TAG", "Permission is revoked");
+                ActivityCompat.requestPermissions(fragment.getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("TAG", "Permission is granted");
+            return true;
+        }
+    }
+
+    public boolean isCameraPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (fragment.getActivity().checkSelfPermission(Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("TAG", "Permission is granted");
+                return true;
+            } else {
+
+                Log.v("TAG", "Permission is revoked");
+                ActivityCompat.requestPermissions(fragment.getActivity(), new String[]{Manifest.permission.CAMERA}, 2);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("TAG", "Permission is granted");
+            return true;
+        }
+    }
+
+
     public View.OnClickListener onClickCookingTime() {
         return new View.OnClickListener() {
             @Override
@@ -249,82 +293,10 @@ public class MainFragmentViewModel extends BaseViewModel {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //open popup
-                int[] location = new int[2];
-                v.getLocationOnScreen(location);
-
-                // Initialize the Point with x, and y positions
-                Point point = new Point();
-                point.x = location[0];
-                point.y = location[1];
-
-                setUpPopupWindow(v, point);
+                dailogPersonServed();
             }
         };
     }
-
-    //popup to choose number of people served
-    public void setUpPopupWindow(View v, Point point) {
-
-        int popupwindowHeight = LinearLayout.LayoutParams.WRAP_CONTENT;
-
-        LayoutInflater layoutInflater = (LayoutInflater) fragment.getActivity()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View layout = layoutInflater.inflate(
-                R.layout.popup_window_card, null);
-
-
-        // Creating the PopupWindow
-        final PopupWindow pwindow = new PopupWindow(fragment.getActivity());
-        pwindow.setContentView(layout);
-        pwindow.setHeight(popupwindowHeight);
-        pwindow.setFocusable(true);
-        pwindow.setOutsideTouchable(true);
-
-        // Call requires API level 21
-        if (Build.VERSION.SDK_INT >= 21) {
-            pwindow.setElevation(10f);
-            pwindow.setBackgroundDrawable(new ColorDrawable(fragment.getActivity().getResources().getColor(R.color.white)));
-        } else {
-            pwindow.setBackgroundDrawable(fragment.getActivity().getResources().getDrawable(R.drawable.background_window_popup_shadow));
-        }
-
-        int OFFSET_X = 0;
-        int OFFSET_Y = 400;
-
-        final String[] types = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-
-        adapterTypeSelection = new ArrayAdapter<String>(fragment.getActivity(),
-                R.layout.item_popup_window
-                ,
-                R.id.textView, types);
-        ListView listview = (ListView) pwindow.getContentView().findViewById(
-                R.id.listview);
-        listview.setAdapter(adapterTypeSelection);
-
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                personServed = types[position] + " Person";
-                notifyChange();
-                pwindow.dismiss();
-            }
-        });
-
-        pwindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-
-            @Override
-            public void onDismiss() {
-                //TODO dismiss settings
-            }
-
-        });
-
-        pwindow.setWidth(300);
-        pwindow.showAtLocation(layout, Gravity.NO_GRAVITY, point.x + OFFSET_X, point.y - OFFSET_Y);
-    }
-
 
     public void dailogRecipeType() {
 
@@ -340,6 +312,20 @@ public class MainFragmentViewModel extends BaseViewModel {
         alertDialogRecipeType.setCancelable(true);
         alertDialogRecipeType.setCanceledOnTouchOutside(true);
         alertDialogRecipeType.show();
+    }
+
+    public void dailogPersonServed() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getActivity());
+        PersonServedDailogBinding binding = DataBindingUtil.inflate(LayoutInflater.from(fragment.getActivity()), R.layout.dailog_person_served, container, false);
+
+        DailogPersonServedViewModel dailogPersonServedViewModel = new DailogPersonServedViewModel(fragment, binding.getRoot());
+        binding.setViewModel(dailogPersonServedViewModel);
+        builder.setView(binding.getRoot());
+
+        alertDialogPersonServed = builder.create();
+        alertDialogPersonServed.setCancelable(true);
+        alertDialogPersonServed.setCanceledOnTouchOutside(true);
+        alertDialogPersonServed.show();
     }
 
     public void dailogMenuChooser() {
@@ -378,10 +364,14 @@ public class MainFragmentViewModel extends BaseViewModel {
     public void itemChooseInMenuDailog(int type) {
         switch (type) {
             case 1:
-                openCameraIntent();
+                if (isCameraPermissionGranted()) {
+                    openCameraIntent();
+                }
                 break;
             case 2:
-                openGaleryIntent();
+                if (isStoragePermissionGranted()) {
+                    openGaleryIntent();
+                }
                 break;
         }
     }
@@ -399,6 +389,10 @@ public class MainFragmentViewModel extends BaseViewModel {
             case 3:
                 //close number picker dailog
                 alertDialogCookingTime.dismiss();
+                break;
+            case 4:
+                alertDialogPersonServed.dismiss();
+                break;
         }
     }
 
@@ -413,6 +407,12 @@ public class MainFragmentViewModel extends BaseViewModel {
         notifyChange();
     }
 
+    //set person served
+    public void setPersonServedText(String personText) {
+        personServed = personText;
+        notifyChange();
+    }
+
     //camera intent
     public void openCameraIntent() {
 
@@ -423,9 +423,9 @@ public class MainFragmentViewModel extends BaseViewModel {
     //galery intent
     public void openGaleryIntent() {
         // Galery intent
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
         fragment.startActivityForResult(Intent.createChooser(intent,
                 "Select Picture"), SELECT_PICTURE);
     }
@@ -433,11 +433,9 @@ public class MainFragmentViewModel extends BaseViewModel {
     //get selected image path
     public void getSlectedImagePath(Uri uri) {
         selectedImagePath = getPath(uri);
-        if (selectedImagePath != null) {
-            displayImage(selectedImagePath);
-        } else {
-            Toast.makeText(fragment.getActivity(), "Something went wrong", Toast.LENGTH_SHORT).show();
-        }
+        // Toast.makeText(fragment.getActivity(), "Image " + selectedImagePath, Toast.LENGTH_SHORT).show();
+        displayImage(selectedImagePath);
+
     }
 
     //get the actual path of the image
@@ -449,7 +447,7 @@ public class MainFragmentViewModel extends BaseViewModel {
         // try to retrieve the image from the media store first
         // this will only work for images selected from gallery
         String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = fragment.getActivity().managedQuery(uri, projection, null, null, null);
+        Cursor cursor = fragment.getActivity().getContentResolver().query(uri, projection, null, null, null);
         if (cursor != null) {
             int column_index = cursor
                     .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);

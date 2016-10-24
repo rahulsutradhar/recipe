@@ -1,12 +1,17 @@
 package com.recipie.rahulrecipie.fragment;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +82,18 @@ public class MainFragment extends BaseFragment {
                 Uri clickedUri = mainFragmentViewModel.getClickedImageUri(photo);
                 mainFragmentViewModel.getSlectedImagePath(clickedUri);
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.v("TAG", "Permission: " + permissions[0] + "was " + grantResults[0]);
+            //resume tasks needing this permission
+            mainFragmentViewModel.openGaleryIntent();
+        } else if (requestCode == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            mainFragmentViewModel.openCameraIntent();
         }
     }
 
