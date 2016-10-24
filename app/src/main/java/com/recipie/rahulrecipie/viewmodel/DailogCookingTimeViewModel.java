@@ -86,9 +86,9 @@ public class DailogCookingTimeViewModel extends BaseViewModel {
             @Override
             public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
                 if (oldValue != newValue) {
-                    minuteChoosed = String.valueOf(newValue) + " min";
+                    minuteChoosed = String.valueOf(newValue * 5) + " min";
                 } else {
-                    minuteChoosed = String.valueOf(oldValue) + " min";
+                    minuteChoosed = String.valueOf(oldValue * 5) + " min";
                 }
             }
         });
