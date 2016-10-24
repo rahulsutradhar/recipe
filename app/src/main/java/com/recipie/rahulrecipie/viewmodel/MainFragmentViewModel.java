@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 
+import java.io.FileReader;
+import java.lang.reflect.Type;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -19,6 +22,7 @@ import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +37,14 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.recipie.rahulrecipie.R;
 import com.recipie.rahulrecipie.apiclient.api.GetRecipeAPI;
 import com.recipie.rahulrecipie.apiclient.response.RecipeResponse;
@@ -42,6 +53,8 @@ import com.recipie.rahulrecipie.databinding.DailogMenuBinding;
 import com.recipie.rahulrecipie.databinding.RecipeTypeDailogBinding;
 import com.recipie.rahulrecipie.fragment.MainFragment;
 import com.recipie.rahulrecipie.helper.SimpleTextWatcher;
+
+import org.json.JSONObject;
 
 import retrofit.Callback;
 import retrofit.Response;
@@ -118,6 +131,11 @@ public class MainFragmentViewModel extends BaseViewModel {
     private String recipeType;
 
     /**
+     * ArrayList
+     */
+    private ArrayList<String> listRecipeType;
+
+    /**
      * Constructor
      */
     public MainFragmentViewModel(MainFragment fragment) {
@@ -127,6 +145,7 @@ public class MainFragmentViewModel extends BaseViewModel {
         this.personServed = "Serves";
         this.cookingTime = "Cooking Time";
         this.selectedImageVisibility = false;
+        this.listRecipeType = new ArrayList<>();
     }
 
     public void bindBackgroundImage() {
@@ -179,7 +198,6 @@ public class MainFragmentViewModel extends BaseViewModel {
             public void onClick(View view) {
                 selectedImageVisibility = false;
                 notifyChange();
-                //Toast.makeText(fragment.getActivity(), "Cancel", Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -198,7 +216,11 @@ public class MainFragmentViewModel extends BaseViewModel {
             @Override
             public void onClick(View view) {
                 //open dailog to choose types
-                dailogRecipeType();
+                if (!listRecipeType.isEmpty()) {
+                    dailogRecipeType();
+                } else {
+                    Toast.makeText(fragment.getActivity(), "Something went wrong, cannot open dailog", Toast.LENGTH_SHORT).show();
+                }
             }
         };
     }
@@ -309,7 +331,7 @@ public class MainFragmentViewModel extends BaseViewModel {
         AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getActivity());
         RecipeTypeDailogBinding binding = DataBindingUtil.inflate(LayoutInflater.from(fragment.getActivity()), R.layout.dailog_recipe_type, container, false);
 
-        DailogRecipeTypeViewModel dailogRecipeTypeViewModel = new DailogRecipeTypeViewModel(fragment);
+        DailogRecipeTypeViewModel dailogRecipeTypeViewModel = new DailogRecipeTypeViewModel(fragment, listRecipeType, binding.getRoot());
         binding.setViewModel(dailogRecipeTypeViewModel);
 
         builder.setView(binding.getRoot());
@@ -386,29 +408,9 @@ public class MainFragmentViewModel extends BaseViewModel {
     }
 
     //recipe type
-    public void selectedRecipeType(int type) {
-        switch (type) {
-            case 1:
-                recipeType = "BreakFast";
-                notifyChange();
-                break;
-            case 2:
-                recipeType = "Lunch";
-                notifyChange();
-                break;
-            case 3:
-                recipeType = "Desert";
-                notifyChange();
-                break;
-            case 4:
-                recipeType = "Salad";
-                notifyChange();
-                break;
-            default:
-                recipeType = "Food";
-                notifyChange();
-                break;
-        }
+    public void selectedRecipeType(String type) {
+        recipeType = type;
+        notifyChange();
     }
 
     //camera intent
@@ -503,8 +505,18 @@ public class MainFragmentViewModel extends BaseViewModel {
                     if (response.isSuccess()) {
 
                         RecipeResponse recipeResponse = response.body();
-                        Toast.makeText(fragment.getActivity(), recipeResponse.toString() + " ", Toast.LENGTH_SHORT).show();
+                        HashMap<String, String> map = recipeResponse;
 
+                        //iterate the map to get the keys
+                        if (map != null) {
+                            Iterator it = map.entrySet().iterator();
+                            while (it.hasNext()) {
+                                Map.Entry pair = (Map.Entry) it.next();
+                                listRecipeType.add(pair.getValue() + "");
+                                Log.d(pair.getKey() + " ", " " + pair.getValue());
+                                it.remove(); // avoids a ConcurrentModificationException
+                            }
+                        }
 
                     } else {
                         if (response != null && !response.isSuccess() && response.errorBody() != null) {
@@ -531,6 +543,13 @@ public class MainFragmentViewModel extends BaseViewModel {
 
         GetRecipeAPI getRecipeAPI = GetRecipeAPI.build(params);
         getRecipeAPI.execute(callback);
+    }
+
+    /**
+     * Parse the key vlue pair of the json response
+     */
+    public void parseJson() {
+
     }
 
     /******************************
